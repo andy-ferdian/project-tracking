@@ -1,4 +1,5 @@
 import React, { useEffect } from "react"
+import { NavLink } from "react-router-dom"
 
 function Sidebar() {
   return (
@@ -26,10 +27,10 @@ function Sidebar() {
               data-accordion="false"
             >
               <li className="nav-item">
-                <a href="pages/widgets.html" className="nav-link">
+                <NavLink to="/project/:projectname" activeClassName="selected">
                   <i className="nav-icon fas fa-th"></i>
-                  <p>Widgets</p>
-                </a>
+                  <p>Phenikaa Website</p>
+                </NavLink>
               </li>
             </ul>
           </nav>
