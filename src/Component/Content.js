@@ -11,7 +11,7 @@ const StyledColumns = styled("div", {
   margin: "0 3vw",
   width: "80%",
   height: "80vh",
-  gap: "8px"
+  gap: "8px",
 })
 
 function Content() {
@@ -38,17 +38,17 @@ function Content() {
       try {
         const response = await Axios.get("http://localhost:8000/project/1", {
           headers: {
-            Authorization: "Token fd9659f760d24eafcc23c9ec0363169e2bd8a8a4",
-            "Content-Type": "application/json"
-          }
+            Authorization: "Token 3edf72f7a8df60093532f4fe156d66a6b140f7a0",
+            "Content-Type": "application/json",
+          },
         })
         // setInitialColumn(response.data.board_column[0].task)
         // console.log(response.data.board_column)
         const colData = {}
-        response.data.board_column.map(col => {
+        response.data.board_column.map((col) => {
           colData[col.name] = {
             id: col.name,
-            list: col.task.map(t => t.name)
+            list: col.task.map((t) => t.name),
           }
         })
 
@@ -76,11 +76,7 @@ function Content() {
     if (destination === undefined || destination === null) return null
 
     // Make sure we're actually moving the item
-    if (
-      source.droppableId === destination.droppableId &&
-      destination.index === source.index
-    )
-      return null
+    if (source.droppableId === destination.droppableId && destination.index === source.index) return null
 
     // Set start and end variables
     const start = columns[source.droppableId]
@@ -98,11 +94,11 @@ function Content() {
       // Then create a new copy of the column object
       const newCol = {
         id: start.id,
-        list: newList
+        list: newList,
       }
 
       // Update the state
-      setColumns(state => ({ ...state, [newCol.id]: newCol }))
+      setColumns((state) => ({ ...state, [newCol.id]: newCol }))
       return null
     } else {
       // If start is different from end, we need to update multiple columns
@@ -112,7 +108,7 @@ function Content() {
       // Create a new start column
       const newStartCol = {
         id: start.id,
-        list: newStartList
+        list: newStartList,
       }
 
       // Make a new end list array
@@ -124,27 +120,26 @@ function Content() {
       // Create a new end column
       const newEndCol = {
         id: end.id,
-        list: newEndList
+        list: newEndList,
       }
 
       // Update the state
-      setColumns(state => ({
+      setColumns((state) => ({
         ...state,
         [newStartCol.id]: newStartCol,
-        [newEndCol.id]: newEndCol
+        [newEndCol.id]: newEndCol,
       }))
       return null
     }
   }
 
-  if (isLoading)
-    return <div style={{ marginLeft: "250px", height: "88vh" }}>Loading...</div>
+  if (isLoading) return <div style={{ marginLeft: "250px", height: "88vh" }}>Loading...</div>
   console.log(columns)
   return (
     <>
-      <div className="content-wrapper">
-        <div className="content-header">
-          <div className="container-fluid" style={{ height: "88vh" }}>
+      <div className='content-wrapper'>
+        <div className='content-header'>
+          <div className='container-fluid' style={{ height: "88vh" }}>
             {/* <p>Board</p> */}
             {/* <div className="row">
               {tasks.map(task => {
@@ -164,10 +159,10 @@ function Content() {
                 )
               })}
             </div> */}
-            <div className="row">
+            <div className='row'>
               <DragDropContext onDragEnd={onDragEnd}>
                 <StyledColumns>
-                  {Object.values(columns).map(col => (
+                  {Object.values(columns).map((col) => (
                     <Column col={col} key={col.id} />
                   ))}
                 </StyledColumns>
