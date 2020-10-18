@@ -60,7 +60,7 @@ function Content() {
       try {
         const response = await Axios.get("http://localhost:8000/project/1", {
           headers: {
-            Authorization: "Token fd9659f760d24eafcc23c9ec0363169e2bd8a8a4",
+            Authorization: "Token 3edf72f7a8df60093532f4fe156d66a6b140f7a0",
             "Content-Type": "application/json"
           }
         })
