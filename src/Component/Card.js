@@ -1,18 +1,61 @@
-import React, { useEffect } from "react"
+import React from "react"
+import Task from "./Task"
+import styled from "styled-components"
+import { Droppable, Draggable } from "react-beautiful-dnd"
 
-function Card() {
+const CardContainer = styled.div`
+  width: 300px;
+  margin: 0px 25px;
+  background: ${props => props.color};
+  border: ${props =>
+    props.isDraggingOver ? "4px dashed #FFF" : "4px dashed rgba(0,0,0,0)"};
+  border-radius: 40px;
+  padding: 15px 15px 30px 15px;
+  box-shadow: 25px 25px 50px rgba(0, 0, 0, 0.15);
+`
+
+const CardTitle = styled.h3`
+  color: #000;
+  text-align: center;
+  margin-bottom: 25px;
+  font-family: sans-serif;
+  font-size: 25px;
+  font-weight: bold;
+`
+
+const TaskContainer = styled.div`
+  min-height: 600px;
+  width: 100%;
+`
+
+function Card({ card, tasks, index }) {
   return (
-    <div className="col-md-2">
-      <div className="card">
-        <div className="card-header">
-          <h3 className="card-title">
-            <i className="fas fa-text-width"></i>
-            Ordered Lists lorem ipsum lorem lorem
-          </h3>
-        </div>
-        <div className="card-body">content lorem ipsum lorem lorem ipsum</div>
-      </div>
-    </div>
+    <Draggable draggableId={card.id} index={index}>
+      {provided => (
+        <Droppable droppableId={card.id} type="task">
+          {(provided2, snapshot) => (
+            <CardContainer
+              ref={provided.innerRef}
+              color={"#62acef"}
+              {...provided.dragHandleProps}
+              isDraggingOver={snapshot.isDraggingOver}
+              {...provided.draggableProps}
+            >
+              <CardTitle>#{card.title}</CardTitle>
+              <TaskContainer
+                ref={provided2.innerRef}
+                {...provided2.droppableProps}
+              >
+                {tasks.map((task, index) => (
+                  <Task key={task.id} task={task} index={index} />
+                ))}
+                {provided2.placeholder}
+              </TaskContainer>
+            </CardContainer>
+          )}
+        </Droppable>
+      )}
+    </Draggable>
   )
 }
 

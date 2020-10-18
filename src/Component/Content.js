@@ -1,37 +1,59 @@
 import React, { useEffect, useState } from "react"
 import Axios from "axios"
+// import Card from "./Card"
 import Card from "./Card"
-import Column from "./Column"
-import { DragDropContext, DropResult } from "react-beautiful-dnd"
-import { styled } from "../stitches.config"
+import { DragDropContext, Droppable } from "react-beautiful-dnd"
+import styled from "styled-components"
 
-const StyledColumns = styled("div", {
-  display: "grid",
-  gridTemplateColumns: "1fr 1fr 1fr",
-  margin: "0 3vw",
-  width: "80%",
-  height: "80vh",
-  gap: "8px"
-})
+const Title = styled.h1`
+  color: #7b7b7b;
+  font-family: sans-serif;
+  font-size: 30px;
+  text-align: center;
+  padding-top: 25px;
+`
+
+const CardContainer = styled.div`
+  width: 100%;
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+  margin-top: 25px;
+`
 
 function Content() {
-  // const initialColumns = {
-  //   todo: {
-  //     id: "todo",
-  //     list: ["item 1", "item 2", "item 3"]
-  //   },
-  //   doing: {
-  //     id: "doing",
-  //     list: []
-  //   },
-  //   done: {
-  //     id: "done",
-  //     list: []
-  //   }
-  // }
+  const initialData = {
+    tasks: {
+      "task-1": { id: "task-1", content: "Learn React JS" },
+      "task-2": { id: "task-2", content: "Learn Vue JS" },
+      "task-3": { id: "task-3", content: "Learn Angular JS" },
+      "task-4": { id: "task-4", content: "Learn Svelte JS" }
+    },
+    cards: {
+      "card-1": {
+        id: "card-1",
+        title: "todo",
+        taskIds: ["task-1", "task-2", "task-3", "task-4"],
+        color: "#FFBA08"
+      },
+      "card-2": {
+        id: "card-2",
+        title: "doing",
+        taskIds: [],
+        color: "#17C9FF"
+      },
+      "card-3": {
+        id: "card-3",
+        title: "completed",
+        taskIds: [],
+        color: "#14E668"
+      }
+    },
+    cardOrder: ["card-1", "card-2", "card-3"]
+  }
 
   const [isLoading, setIsLoading] = useState(true)
-  const [columns, setColumns] = useState({})
+  const [state, setState] = useState({})
 
   useEffect(() => {
     async function fetchTasks() {
@@ -44,13 +66,13 @@ function Content() {
         })
         // setInitialColumn(response.data.board_column[0].task)
         // console.log(response.data.board_column)
-        const colData = {}
-        response.data.board_column.map(col => {
-          colData[col.name] = {
-            id: col.name,
-            list: col.task.map(t => t.name)
-          }
-        })
+        // const colData = {}
+        // response.data.board_column.map(col => {
+        //   colData[col.name] = {
+        //     id: col.name,
+        //     list: col.task.map(t => t.name)
+        //   }
+        // })
 
         // response.data.board_column.map(item => {
         //   initialColumns[item.name] = {
@@ -60,7 +82,7 @@ function Content() {
 
         // })
         // console.log(initialColumns)
-        setColumns(colData)
+        setState(response.data)
         setIsLoading(false)
       } catch (e) {
         console.log("There was a problem...")
@@ -71,75 +93,83 @@ function Content() {
 
   // const [columns, setColumns] = useState(initialColumns)
 
-  const onDragEnd = ({ source, destination }) => {
-    // Make sure we have a valid destination
-    if (destination === undefined || destination === null) return null
-
-    // Make sure we're actually moving the item
+  const onDragEnd = result => {
+    const { draggableId, source, destination, type } = result
     if (
-      source.droppableId === destination.droppableId &&
-      destination.index === source.index
-    )
-      return null
+      !destination ||
+      (source.droppableId === destination.droppableId &&
+        source.index === destination.index)
+    ) {
+      return
+    }
 
-    // Set start and end variables
-    const start = columns[source.droppableId]
-    const end = columns[destination.droppableId]
+    if (type === "card") {
+      const newCardOrder = Array.from(state.cardOrder)
+      newCardOrder.splice(source.index, 1)
+      newCardOrder.splice(destination.index, 0, draggableId)
 
-    // If start is the same as end, we're in the same column
-    if (start === end) {
-      // Move the item within the list
-      // Start by making a new list without the dragged item
-      const newList = start.list.filter((_, idx) => idx !== source.index)
-
-      // Then insert the item at the right location
-      newList.splice(destination.index, 0, start.list[source.index])
-
-      // Then create a new copy of the column object
-      const newCol = {
-        id: start.id,
-        list: newList
-      }
-
-      // Update the state
-      setColumns(state => ({ ...state, [newCol.id]: newCol }))
-      return null
-    } else {
-      // If start is different from end, we need to update multiple columns
-      // Filter the start list like before
-      const newStartList = start.list.filter((_, idx) => idx !== source.index)
-
-      // Create a new start column
-      const newStartCol = {
-        id: start.id,
-        list: newStartList
-      }
-
-      // Make a new end list array
-      const newEndList = end.list
-
-      // Insert the item into the end list
-      newEndList.splice(destination.index, 0, start.list[source.index])
-
-      // Create a new end column
-      const newEndCol = {
-        id: end.id,
-        list: newEndList
-      }
-
-      // Update the state
-      setColumns(state => ({
+      const newState = {
         ...state,
-        [newStartCol.id]: newStartCol,
-        [newEndCol.id]: newEndCol
-      }))
-      return null
+        cardOrder: newCardOrder
+      }
+      setState(newState)
+      return
+    }
+
+    if (type === "task") {
+      const start = state.cards[source.droppableId]
+      const finish = state.cards[destination.droppableId]
+
+      if (start === finish) {
+        const card = state.cards[source.droppableId]
+        const newTaskIds = Array.from(card.taskIds)
+        newTaskIds.splice(source.index, 1)
+        newTaskIds.splice(destination.index, 0, draggableId)
+        const newCard = {
+          ...card,
+          taskIds: newTaskIds
+        }
+        const newState = {
+          ...state,
+          cards: {
+            ...state.cards,
+            [newCard.id]: newCard
+          }
+        }
+        setState(newState)
+        return
+      }
+      // move to another card
+      const startTaskIds = Array.from(start.taskIds)
+      startTaskIds.splice(source.index, 1)
+      const newStart = {
+        ...start,
+        taskIds: startTaskIds
+      }
+
+      const finishTaskIds = Array.from(finish.taskIds)
+      finishTaskIds.splice(destination.index, 0, draggableId)
+      const newFinish = {
+        ...finish,
+        taskIds: finishTaskIds
+      }
+
+      const newState = {
+        ...state,
+        cards: {
+          ...state.cards,
+          [newStart.id]: newStart,
+          [newFinish.id]: newFinish
+        }
+      }
+      setState(newState)
+      return
     }
   }
 
   if (isLoading)
     return <div style={{ marginLeft: "250px", height: "88vh" }}>Loading...</div>
-  console.log(columns)
+  // console.log(columns)
   return (
     <>
       <div className="content-wrapper">
@@ -166,11 +196,34 @@ function Content() {
             </div> */}
             <div className="row">
               <DragDropContext onDragEnd={onDragEnd}>
-                <StyledColumns>
-                  {Object.values(columns).map(col => (
-                    <Column col={col} key={col.id} />
-                  ))}
-                </StyledColumns>
+                <Droppable
+                  droppableId="all-cards"
+                  direction="horizontal"
+                  type="card"
+                >
+                  {provided => (
+                    <CardContainer
+                      ref={provided.innerRef}
+                      {...provided.droppableProps}
+                    >
+                      {state.cardOrder.map((cardId, index) => {
+                        const card = state.cards[cardId]
+                        const tasks = card.taskIds.map(
+                          taskId => state.tasks[taskId]
+                        )
+                        return (
+                          <Card
+                            key={cardId}
+                            card={card}
+                            tasks={tasks}
+                            index={index}
+                          />
+                        )
+                      })}
+                      {provided.placeholder}
+                    </CardContainer>
+                  )}
+                </Droppable>
               </DragDropContext>
             </div>
             {/* <Card /> */}
