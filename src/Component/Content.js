@@ -58,7 +58,7 @@ function Content() {
   useEffect(() => {
     async function fetchTasks() {
       try {
-        const response = await Axios.get("http://localhost:8000/project/1", {
+        const response = await Axios.get("http://localhost:8000/project/1/", {
           headers: {
             Authorization: "Token 3edf72f7a8df60093532f4fe156d66a6b140f7a0",
             "Content-Type": "application/json",
