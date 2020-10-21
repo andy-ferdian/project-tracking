@@ -27,29 +27,29 @@ function Content() {
       "task-1": { id: "task-1", content: "Learn React JS" },
       "task-2": { id: "task-2", content: "Learn Vue JS" },
       "task-3": { id: "task-3", content: "Learn Angular JS" },
-      "task-4": { id: "task-4", content: "Learn Svelte JS" }
+      "task-4": { id: "task-4", content: "Learn Svelte JS" },
     },
     cards: {
       "card-1": {
         id: "card-1",
         title: "todo",
         taskIds: ["task-1", "task-2", "task-3", "task-4"],
-        color: "#FFBA08"
+        color: "#FFBA08",
       },
       "card-2": {
         id: "card-2",
         title: "doing",
         taskIds: [],
-        color: "#17C9FF"
+        color: "#17C9FF",
       },
       "card-3": {
         id: "card-3",
         title: "completed",
         taskIds: [],
-        color: "#14E668"
-      }
+        color: "#14E668",
+      },
     },
-    cardOrder: ["card-1", "card-2", "card-3"]
+    cardOrder: ["card-1", "card-2", "card-3"],
   }
 
   const [isLoading, setIsLoading] = useState(true)
@@ -61,8 +61,8 @@ function Content() {
         const response = await Axios.get("http://localhost:8000/project/1", {
           headers: {
             Authorization: "Token 3edf72f7a8df60093532f4fe156d66a6b140f7a0",
-            "Content-Type": "application/json"
-          }
+            "Content-Type": "application/json",
+          },
         })
         // setInitialColumn(response.data.board_column[0].task)
         // console.log(response.data.board_column)
@@ -81,7 +81,7 @@ function Content() {
         //   }
 
         // })
-        // console.log(initialColumns)
+        console.log(response.data)
         setState(response.data)
         setIsLoading(false)
       } catch (e) {
@@ -93,13 +93,9 @@ function Content() {
 
   // const [columns, setColumns] = useState(initialColumns)
 
-  const onDragEnd = result => {
+  const onDragEnd = (result) => {
     const { draggableId, source, destination, type } = result
-    if (
-      !destination ||
-      (source.droppableId === destination.droppableId &&
-        source.index === destination.index)
-    ) {
+    if (!destination || (source.droppableId === destination.droppableId && source.index === destination.index)) {
       return
     }
 
@@ -110,7 +106,7 @@ function Content() {
 
       const newState = {
         ...state,
-        cardOrder: newCardOrder
+        cardOrder: newCardOrder,
       }
       setState(newState)
       return
@@ -127,14 +123,14 @@ function Content() {
         newTaskIds.splice(destination.index, 0, draggableId)
         const newCard = {
           ...card,
-          taskIds: newTaskIds
+          taskIds: newTaskIds,
         }
         const newState = {
           ...state,
           cards: {
             ...state.cards,
-            [newCard.id]: newCard
-          }
+            [newCard.id]: newCard,
+          },
         }
         setState(newState)
         return
@@ -144,14 +140,14 @@ function Content() {
       startTaskIds.splice(source.index, 1)
       const newStart = {
         ...start,
-        taskIds: startTaskIds
+        taskIds: startTaskIds,
       }
 
       const finishTaskIds = Array.from(finish.taskIds)
       finishTaskIds.splice(destination.index, 0, draggableId)
       const newFinish = {
         ...finish,
-        taskIds: finishTaskIds
+        taskIds: finishTaskIds,
       }
 
       const newState = {
@@ -159,22 +155,21 @@ function Content() {
         cards: {
           ...state.cards,
           [newStart.id]: newStart,
-          [newFinish.id]: newFinish
-        }
+          [newFinish.id]: newFinish,
+        },
       }
       setState(newState)
       return
     }
   }
 
-  if (isLoading)
-    return <div style={{ marginLeft: "250px", height: "88vh" }}>Loading...</div>
+  if (isLoading) return <div style={{ marginLeft: "250px", height: "88vh" }}>Loading...</div>
   // console.log(columns)
   return (
     <>
-      <div className="content-wrapper">
-        <div className="content-header">
-          <div className="container-fluid" style={{ height: "88vh" }}>
+      <div className='content-wrapper'>
+        <div className='content-header'>
+          <div className='container-fluid' style={{ height: "88vh" }}>
             {/* <p>Board</p> */}
             {/* <div className="row">
               {tasks.map(task => {
@@ -194,31 +189,16 @@ function Content() {
                 )
               })}
             </div> */}
-            <div className="row">
+            <div className='row'>
               <DragDropContext onDragEnd={onDragEnd}>
-                <Droppable
-                  droppableId="all-cards"
-                  direction="horizontal"
-                  type="card"
-                >
-                  {provided => (
-                    <CardContainer
-                      ref={provided.innerRef}
-                      {...provided.droppableProps}
-                    >
+                <Droppable droppableId='all-cards' direction='horizontal' type='card'>
+                  {(provided) => (
+                    <CardContainer ref={provided.innerRef} {...provided.droppableProps}>
                       {state.cardOrder.map((cardId, index) => {
+                        console.log(cardId, index)
                         const card = state.cards[cardId]
-                        const tasks = card.taskIds.map(
-                          taskId => state.tasks[taskId]
-                        )
-                        return (
-                          <Card
-                            key={cardId}
-                            card={card}
-                            tasks={tasks}
-                            index={index}
-                          />
-                        )
+                        const tasks = card.taskIds.map((taskId) => state.tasks[taskId])
+                        return <Card key={cardId} card={card} tasks={tasks} index={index} />
                       })}
                       {provided.placeholder}
                     </CardContainer>
